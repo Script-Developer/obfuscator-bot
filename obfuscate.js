@@ -1,24 +1,30 @@
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).send("Only POST allowed");
+const http = require("http");
+
+const PORT = process.env.PORT || 3000;
+
+http.createServer((req, res) => {
+  if (req.method === "POST" && req.url === "/obfuscate") {
+    let body = "";
+
+    req.on("data", chunk => (body += chunk));
+    req.on("end", () => {
+      try {
+        const { code } = JSON.parse(body);
+        if (!code) throw new Error("No code provided");
+
+        obfuscated = `[Made By Obfuscator Bot, https://discord.gg/VwTM63a38Y]\n` + obfuscated;
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ result: obfuscated }));
+      } catch (e) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ result: "❌ failed to obfuscate." }));
+      }
+    });
+  } else {
+    res.writeHead(404, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ result: "❌ Not Found" }));
   }
-
-  try {
-    const { code } = req.body;
-
-    if (!code || typeof code !== "string") {
-      return res.status(400).json({ result: "Invalid code input." });
-    }
-
-    const encoded = code
-      .split("")
-      .map(c => `\\${c.charCodeAt(0)}`)
-      .join("");
-
-    const wrapped = `-- [Made By Obfuscator Bot, https://discord.gg/VwTM63a38Y]\nlocal a="${encoded}"\nfor i in a:gmatch("\\%d+") do io.write(string.char(tonumber(i:sub(2)))) end`;
-
-    res.status(200).json({ result: wrapped });
-  } catch (e) {
-    res.status(500).json({ result: "Internal error." });
-  }
-}
+}).listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
