@@ -1,9 +1,0 @@
-{
-  "version": 2,
-  "builds": [
-    { "src": "api/obfuscate.js", "use": "@vercel/node" }
-  ],
-  "routes": [
-    { "src": "/api/obfuscate", "dest": "api/obfuscate.js" }
-  ]
-}
