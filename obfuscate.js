@@ -12,6 +12,13 @@ http.createServer((req, res) => {
         const { code } = JSON.parse(body);
         if (!code) throw new Error("No code provided");
 
+        // Obfuscation logic (preserving 'local', no loadstring)
+        let obfuscated = code
+          .replace(/function/g, "ƒ")
+          .replace(/end/g, "ǝu")
+          // DO NOT replace 'local'
+          .split("").reverse().join(""); // simple reversal
+
         obfuscated = `[Made By Obfuscator Bot, https://discord.gg/VwTM63a38Y]\n` + obfuscated;
 
         res.writeHead(200, { "Content-Type": "application/json" });
