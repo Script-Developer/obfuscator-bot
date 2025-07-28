@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>[Made By Obfuscator Bot, https://discord.gg/VwTM63a38Y]</title>
+    <style>
+      body { background-color: #0e0e0e; color: white; font-family: sans-serif; text-align: center; padding: 30px; }
+      textarea { width: 90%; height: 200px; margin-top: 20px; background: #111; color: #0f0; border: none; padding: 10px; }
+      button { margin-top: 15px; padding: 10px 20px; font-size: 18px; background: #222; color: #0f0; border: 2px solid #0f0; }
+    </style>
+  </head>
+  <body>
+    <h1>[Made By Obfuscator Bot]</h1>
+    <textarea id="input" placeholder="Paste Lua code..."></textarea><br>
+    <button onclick="run()">Obfuscate</button>
+    <textarea id="output" placeholder="Obfuscated result..." readonly></textarea>
+
+    <script>
+      async function run() {
+        const code = document.getElementById('input').value;
+        const res = await fetch('api/obfuscate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code })
+        });
+        const data = await res.json();
+        document.getElementById('output').value = data.obfuscated || 'Error occurred.';
+      }
+    </script>
+  </body>
+</html>
