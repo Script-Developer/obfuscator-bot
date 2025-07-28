@@ -1,30 +1,172 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>[Made By Obfuscator Bot, https://discord.gg/VwTM63a38Y]</title>
-    <style>
-      body { background-color: #0e0e0e; color: white; font-family: sans-serif; text-align: center; padding: 30px; }
-      textarea { width: 90%; height: 200px; margin-top: 20px; background: #111; color: #0f0; border: none; padding: 10px; }
-      button { margin-top: 15px; padding: 10px 20px; font-size: 18px; background: #222; color: #0f0; border: 2px solid #0f0; }
-    </style>
-  </head>
-  <body>
-    <h1>[Made By Obfuscator Bot]</h1>
-    <textarea id="input" placeholder="Paste Lua code..."></textarea><br>
-    <button onclick="run()">Obfuscate</button>
-    <textarea id="output" placeholder="Obfuscated result..." readonly></textarea>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Lua Obfuscator - Made by Obfuscator Bot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-    <script>
-      async function run() {
-        const code = document.getElementById('input').value;
-        const res = await fetch('api/obfuscate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code })
-        });
-        const data = await res.json();
-        document.getElementById('output').value = data.obfuscated || 'Error occurred.';
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0a0a0a;
+      color: #00ffcc;
+      font-family: 'Courier New', Courier, monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      margin-top: 30px;
+      font-size: 2rem;
+      text-shadow: 0 0 10px #00ffd5;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 900px;
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 200px;
+      background-color: #121212;
+      border: 2px solid #00ffcc;
+      border-radius: 10px;
+      color: #00ffcc;
+      padding: 15px;
+      resize: vertical;
+      font-size: 14px;
+      transition: 0.2s;
+    }
+
+    textarea:focus {
+      outline: none;
+      box-shadow: 0 0 10px #00ffc3;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    button {
+      flex: 1;
+      background-color: #00ffcc;
+      border: none;
+      color: #000;
+      font-weight: bold;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background-color: #00e6b8;
+      box-shadow: 0 0 10px #00ffcc;
+    }
+
+    .status {
+      margin-top: 10px;
+      text-align: center;
+      font-style: italic;
+      font-size: 14px;
+      color: #999;
+    }
+
+    @media (max-width: 600px) {
+      textarea {
+        height: 150px;
       }
-    </script>
-  </body>
+
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Lua Obfuscator</h1>
+  <div class="container">
+    <textarea id="input" placeholder="Paste your Lua code here..."></textarea>
+    
+    <div class="buttons">
+      <button onclick="pasteCode()">📋 Paste</button>
+      <button onclick="obfuscate()">⚙️ Obfuscate</button>
+      <button onclick="copyCode()">📄 Copy</button>
+    </div>
+
+    <textarea id="output" placeholder="Obfuscated code will appear here..." readonly></textarea>
+    <div class="status" id="statusText">Ready to obfuscate...</div>
+  </div>
+
+  <script>
+    async function obfuscate() {
+      const input = document.getElementById('input').value.trim();
+      const output = document.getElementById('output');
+      const status = document.getElementById('statusText');
+
+      if (!input) {
+        status.textContent = "⚠️ Please paste some Lua code first!";
+        return;
+      }
+
+      status.textContent = "⏳ Obfuscating...";
+
+      try {
+        const res = await fetch('/obfuscate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ code: input })
+        });
+
+        const data = await res.json();
+        if (data.obfuscated) {
+          output.value = data.obfuscated;
+          status.textContent = "✅ Obfuscation complete!";
+        } else {
+          output.value = "";
+          status.textContent = "❌ Failed to obfuscate.";
+        }
+      } catch (err) {
+        output.value = "";
+        status.textContent = "❌ Error contacting server.";
+      }
+    }
+
+    async function pasteCode() {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('input').value = text;
+        document.getElementById('statusText').textContent = "📋 Code pasted from clipboard.";
+      } catch {
+        document.getElementById('statusText').textContent = "⚠️ Failed to paste from clipboard.";
+      }
+    }
+
+    function copyCode() {
+      const output = document.getElementById('output');
+      navigator.clipboard.writeText(output.value)
+        .then(() => {
+          document.getElementById('statusText').textContent = "📄 Output copied to clipboard!";
+        })
+        .catch(() => {
+          document.getElementById('statusText').textContent = "⚠️ Failed to copy.";
+        });
+    }
+  </script>
+</body>
 </html>
