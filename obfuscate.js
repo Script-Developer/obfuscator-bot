@@ -1,18 +1,23 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Only POST allowed' });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const { code } = req.body;
 
   if (!code || typeof code !== 'string') {
-    return res.status(400).json({ error: 'Invalid Lua code' });
+    return res.status(400).json({ error: 'Invalid code input' });
   }
 
-  const header = "([[This file was protected with Obfuscator Bot,\\nhttps://discord.gg/VwTM63a38Y]]):gsub('.+', (function(a) __Obfuscated = a; end)); ";
-  const encoded = Buffer.from(code).toString('base64').replace(/=/g, '');
-  const payload = `__payload='${encoded}'`;
+  // Basic obfuscation logic (does not use loadstring)
+  const obfuscated = code
+    .replace(/([a-zA-Z_][a-zA-Z0-9_]*)/g, (_, v) => {
+      if (['if', 'then', 'end', 'function', 'local', 'return', 'true', 'false', 'nil', 'for', 'do', 'repeat', 'until', 'while', 'break', 'and', 'or', 'not'].includes(v)) {
+        return v;
+      }
+      return '_' + Math.random().toString(36).substring(2, 8);
+    })
+    .split('').reverse().join(''); // Example transformation
 
-  const final = `${header}${payload}`;
-  res.status(200).json({ obfuscated: final });
+  res.status(200).json({ obfuscated });
 }
